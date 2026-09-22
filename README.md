@@ -73,7 +73,7 @@ CLAHE는 3단계로 동작한다.
 ## Key Design Decisions
 
 ### 1클럭 2픽셀
-YCbCr 4:2:2 포맷에서 32비트 워드 `{Y0, Cb, Y1, Cr}`에 휘도 2픽셀이 함께 들어온다. 이를 활용해 유효픽셀 기준 62.2MHz면 FHD 60fps 수용 가능 → 100MHz로 여유 확보. 무작정 클럭을 올리는 대신 데이터 포맷에서 병렬성을 찾는 것이 핵심이었다.
+YCbCr 4:2:2 포맷에서 32비트 워드 `{Y0, Cb, Y1, Cr}`에 휘도 2픽셀이 함께 들어온다. 이를 활용해 유효픽셀 기준 62.2MHz면 FHD 60fps 수용 가능 → 100MHz로 여유 확보.
 
 ### BRAM ×8 복제
 양선형 보간은 1클럭에 4방향 타일 × Y0/Y1 = **8개 CDF 동시 읽기** 필요. BRAM은 최대 2-Port이므로 동일 데이터를 8개 BRAM에 복제해 독립 읽기 포트로 사용. 쓰기는 8개 동시 → 추가 사이클 없음. BRAM 45.71% 사용의 원인.
@@ -109,7 +109,7 @@ wire [31:0] norm_calc = ({8'b0, cdf_next_ff} * 32'd516) >> 16;
 rtl/
 ├── clahe_top.v         — 최상위 모듈, 좌표 카운터, 5단 보간 파이프라인
 ├── input_buf.v         — YCbCr 4:2:2 분리, Y 1클럭 지연
-├── histogram_8bank.v   — 8뱅크 LUTRAM 히스토그램 + Hazard Forwarding
+├── histogram_8bank.v   — 타일 열 8개분 히스토그램 (LUTRAM 4배열) + Hazard Forwarding
 ├── clipper_8col.v      — 클립·재분배·CDF 정규화
 ├── cdf_store.v         — BRAM ×8 Ping-Pong CDF 저장
 ├── ram_cntl.v          — 타일 ID, 오프셋 계산
